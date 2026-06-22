@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Logback configuration for Feature Flags API.
+    
+    ===== Profiles =====
+    default / prod : JSON file appender (structured) + JSON console appender
+    dev            : Colored console appender (human-readable) + JSON file appender
+-->
+<configuration>
+    <!-- ============================================= -->
+    <!-- Service metadata (for structured logging)     -->
+    <!-- ============================================= -->
+    <springProperty name="springAppName" source="spring.application.name" defaultValue="feature-flags"/>
+    <springProperty name="springAppVersion" source="spring.application.version" defaultValue="1.0.0"/>
+    <springProperty name="activeProfiles" source="spring.profiles.active" defaultValue="default"/>
+
+    <!-- ============================================= -->
+    <!-- Console appender (colored, dev profile)       -->
+    <!-- ============================================= -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) [%thread] %cyan(%logger{36}) %magenta(%X{traceId:-})- %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <!-- ============================================= -->
+    <!-- JSON file appender (all profiles)             -->
+    <!-- ============================================= -->
+    <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/${springAppName}.json</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- daily rollover with size-based rotation -->
+            <fileNamePattern>logs/${springAppName}.%d{yyyy-MM-dd}.%i.json</fileNamePattern>
+            <!-- keep 2 days of history -->
+            <maxHistory>2</maxHistory>
+            <!-- max 100 MB per file -->
+            <maxFileSize>100MB</maxFileSize>
+            <!-- total cap across all archived logs -->
+            <totalSizeCap>500MB</totalSizeCap>
+        </rollingPolicy>
+
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <!-- Timestamp (ISO-8601) -->
+                <timestamp>
+                    <timeZone>UTC</timeZone>
+                </timestamp>
+
+                <!-- Log level -->
+                <logLevel/>
+
+                <!-- Logger name -->
+                <loggerName/>
+
+                <!-- Thread name -->
+                <threadName/>
+
+                <!-- Log message -->
+                <message/>
+
+                <!-- Stack traces -->
+                <stackTrace>
+                    <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+                        <maxDepthPerThrowable>30</maxDepthPerThrowable>
+                        <maxLength>2048</maxLength>
+                        <shortenedClassNameLength>20</shortenedClassNameLength>
+                        <rootCauseFirst>true</rootCauseFirst>
+                    </throwableConverter>
+                </stackTrace>
+
+                <!-- MDC fields (traceId, spanId, request details, etc.) -->
+                <mdc>
+                    <includeMdcKeyName>traceId</includeMdcKeyName>
+                    <includeMdcKeyName>spanId</includeMdcKeyName>
+                    <includeMdcKeyName>requestMethod</includeMdcKeyName>
+                    <includeMdcKeyName>requestUri</includeMdcKeyName>
+                    <includeMdcKeyName>queryString</includeMdcKeyName>
+                    <includeMdcKeyName>statusCode</includeMdcKeyName>
+                    <includeMdcKeyName>durationMs</includeMdcKeyName>
+                </mdc>
+
+                <!-- Service context -->
+                <context/>
+                <jsonFactoryProvider/>
+
+                <!-- Custom fields from spring properties -->
+                <pattern>
+                    <pattern>
+                        {
+                            "service": {
+                                "name": "${springAppName}",
+                                "version": "${springAppVersion}",
+                                "environment": "${activeProfiles}"
+                            }
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+
+    <!-- ============================================= -->
+    <!-- JSON console appender (default / prod)        -->
+    <!-- ============================================= -->
+    <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp>
+                    <timeZone>UTC</timeZone>
+                </timestamp>
+                <logLevel/>
+                <loggerName/>
+                <threadName/>
+                <message/>
+                <stackTrace>
+                    <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+                        <maxDepthPerThrowable>30</maxDepthPerThrowable>
+                        <maxLength>2048</maxLength>
+                        <shortenedClassNameLength>20</shortenedClassNameLength>
+                        <rootCauseFirst>true</rootCauseFirst>
+                    </throwableConverter>
+                </stackTrace>
+                <mdc>
+                    <includeMdcKeyName>traceId</includeMdcKeyName>
+                    <includeMdcKeyName>spanId</includeMdcKeyName>
+                    <includeMdcKeyName>requestMethod</includeMdcKeyName>
+                    <includeMdcKeyName>requestUri</includeMdcKeyName>
+                    <includeMdcKeyName>queryString</includeMdcKeyName>
+                    <includeMdcKeyName>statusCode</includeMdcKeyName>
+                    <includeMdcKeyName>durationMs</includeMdcKeyName>
+                </mdc>
+                <context/>
+                <pattern>
+                    <pattern>
+                        {
+                            "service": {
+                                "name": "${springAppName}",
+                                "version": "${springAppVersion}",
+                                "environment": "${activeProfiles}"
+                            }
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+
+    <!-- ============================================= -->
+    <!-- Root logger configuration                     -->
+    <!-- ============================================= -->
+    <springProfile name="dev">
+        <!-- Dev profile: readable console + JSON file -->
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="JSON_FILE"/>
+        </root>
+        <!-- Allow DEBUG for the application's own code -->
+        <logger name="com.theroot.featureflags" level="DEBUG" additivity="false">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="JSON_FILE"/>
+        </logger>
+    </springProfile>
+
+    <springProfile name="default">
+        <!-- Default/Prod profile: full JSON everywhere -->
+        <root level="INFO">
+            <appender-ref ref="JSON_CONSOLE"/>
+            <appender-ref ref="JSON_FILE"/>
+        </root>
+        <!-- Keep application logging at INFO in prod -->
+        <logger name="com.theroot.featureflags" level="INFO" additivity="false">
+            <appender-ref ref="JSON_CONSOLE"/>
+            <appender-ref ref="JSON_FILE"/>
+        </logger>
+    </springProfile>
+
+    <!-- Suppress noisy actuator/wiring debug logs -->
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.hibernate" level="WARN"/>
+    <logger name="com.zaxxer.hikari" level="WARN"/>
+</configuration>

@@ -1,6 +1,0 @@
-/mnt/d/Work_Related/dev/TheRoot/backend/src/main/java/com/theroot/featureflags/config/CorsConfig.java
-/mnt/d/Work_Related/dev/TheRoot/backend/src/main/java/com/theroot/featureflags/FeatureFlagsApplication.java
-/mnt/d/Work_Related/dev/TheRoot/backend/src/main/java/com/theroot/featureflags/model/FeatureFlag.java
-/mnt/d/Work_Related/dev/TheRoot/backend/src/main/java/com/theroot/featureflags/seeder/FeatureFlagSeeder.java
-/mnt/d/Work_Related/dev/TheRoot/backend/src/main/java/com/theroot/featureflags/repository/FeatureFlagRepository.java
-/mnt/d/Work_Related/dev/TheRoot/backend/src/main/java/com/theroot/featureflags/controller/FeatureFlagController.java

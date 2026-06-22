@@ -1,0 +1,48 @@
+# =====================
+# Backend (Java / Maven)
+# =====================
+backend/target/
+backend/logs/
+*.class
+*.jar
+*.war
+
+# =====================
+# Frontend (React / Vite)
+# =====================
+frontend/dist/
+frontend/node_modules/
+frontend/.env.local
+
+# =====================
+# IDE - IntelliJ IDEA (user-specific files)
+# =====================
+.idea/workspace.xml
+.idea/shelf/
+
+# =====================
+# IDE - VS Code
+# =====================
+.vscode/
+*.swp
+*.swo
+
+# =====================
+# OS files
+# =====================
+.DS_Store
+Thumbs.db
+*.~
+
+# =====================
+# Environment / Secrets
+# =====================
+.env
+*.env.local
+*.env.*.local
+
+# =====================
+# Logs
+# =====================
+logs/
+*.log
