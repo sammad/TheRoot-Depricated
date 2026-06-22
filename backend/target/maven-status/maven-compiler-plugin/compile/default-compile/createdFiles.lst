@@ -1,0 +1,7 @@
+com/theroot/featureflags/controller/FeatureFlagController.class
+com/theroot/featureflags/seeder/FeatureFlagSeeder.class
+com/theroot/featureflags/config/CorsConfig$1.class
+com/theroot/featureflags/repository/FeatureFlagRepository.class
+com/theroot/featureflags/config/CorsConfig.class
+com/theroot/featureflags/FeatureFlagsApplication.class
+com/theroot/featureflags/model/FeatureFlag.class
